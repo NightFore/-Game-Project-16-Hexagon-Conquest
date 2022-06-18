@@ -22,14 +22,14 @@ class Game:
         pass
 
     def new(self):
-        self.map = [[1]*11]*11
-        print(self.map)
+        self.hexagons = init_hexagons(flat_top=False)
 
     def draw(self):
-        self.test()
+        draw_hexagon(self.gameDisplay, self.hexagons)
 
     def update(self):
-        pass
+        for hexagon in self.hexagons:
+            hexagon.update()
 
     def ui_new_game(self):
         # Initialization

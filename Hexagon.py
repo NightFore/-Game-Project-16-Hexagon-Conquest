@@ -142,7 +142,7 @@ def create_hexagon(position, radius=50, color=None, flat_top=False) -> HexagonTi
     return HexagonTile(position, radius, color, flat_top)
 
 
-def get_random_color(min_color=150, max_color=255) -> Tuple[int, ...]:
+def get_random_color(min_color=120, max_color=255) -> Tuple[int, ...]:
     """Returns a random RGB color with each component between min_color and max_clor"""
     return tuple(random.choices(list(range(min_color, max_color)), k=3))
 
