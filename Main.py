@@ -22,18 +22,58 @@ class Game:
         pass
 
     def new(self):
+        self.colliding_hexagons = []
+        self.hexagon_map = [
+            [0, 1, 1, 1, 0],
+            [1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1],
+            [1, 1, 0, 1, 0]
+        ]
+        self.map_size = len(self.hexagon_map[0]), len(self.hexagon_map)
         self.hexagons = init_hexagons(flat_top=False)
 
-    def draw(self):
-        draw_hexagon(self.gameDisplay, self.hexagons)
-
     def update(self):
+        self.click = self.main.click
+        self.mouse = self.main.mouse
+        self.event = self.main.event
+
         for hexagon in self.hexagons:
             hexagon.update()
+
+        if self.click[1]:
+            for hexagon in self.colliding_hexagons:
+                hexagon.color = (125, 125, 125)
+
+    def draw(self):
+        for hexagon in self.hexagons:
+            hexagon.render(self.gameDisplay)
+
+        self.colliding_hexagons = [hexagon for hexagon in self.hexagons if hexagon.collide_with_point(self.mouse)]
+        for hexagon in self.colliding_hexagons:
+            for neighbour in hexagon.compute_neighbours(self.hexagons):
+                # neighbour.render_highlight(self.gameDisplay, border_color=(100, 100, 100))
+                pass
+            hexagon.render_highlight(self.gameDisplay, border_color=(0, 0, 0))
+
 
     def ui_new_game(self):
         # Initialization
         self.main.update_menu()
+        self.load_map()
+
+    def load_map(self, map=None):
+        self.hexagon_map = self.hexagon_map if map is None else map
+        self.map_size = len(self.hexagon_map[0]), len(self.hexagon_map)
+        self.hexagons = init_hexagons(position=(300, 200), num_x=self.map_size[0], num_y=self.map_size[1], flat_top=False)
+
+        for count in range(len(self.hexagons)):
+            line = count // self.map_size[0]
+            column = count % self.map_size[0]
+            if self.hexagon_map[line][column] == 1:
+                self.hexagons[count].color = (0, 0, 0)
+            else:
+                self.hexagons[count].color = (255, 255, 255)
+
 
 MAIN_DICT = {
     # Init (Settings) ----------------- #

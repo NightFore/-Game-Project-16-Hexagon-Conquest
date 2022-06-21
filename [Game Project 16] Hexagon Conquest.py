@@ -162,18 +162,17 @@ class Main:
 
 
     def events(self):
-        # Click: Left, Middle, Right, Scroll Up, Scroll Down
+        # Click: None, Left, Middle, Right, Scroll Up, Scroll Down
         self.click = [None, False, False, False, False, False]
-
+        self.mouse = pygame.mouse.get_pos()
         self.event = pygame.event.get()
+
         for event in self.event:
-            # Mouse position & Rescaling to screen size
-            self.mouse = pygame.mouse.get_pos()
+            # Rescales mouse position to screen size
             if self.gameDisplay.factor_w != 1 or self.gameDisplay.factor_h != 1:
                 mouse_w = int((self.mouse[0] - self.gameDisplay.game_gap[0]) / self.gameDisplay.factor_w)
                 mouse_h = int(self.mouse[1] / self.gameDisplay.factor_h)
                 self.mouse = (mouse_w, mouse_h)
-
 
             # Mouse Click
             if event.type == pygame.MOUSEBUTTONDOWN:

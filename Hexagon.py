@@ -113,16 +113,15 @@ def init_hexagons(position=(50, 50), num_x=20, num_y=20, flat_top=False) -> List
             hexagons.append(leftmost_hexagon)
 
         # Places hexagons to the right of the leftmost hexagon
-        hexagon = leftmost_hexagon
         for i in range(num_x-1):
-            x, y = hexagon.position
+            x, y = leftmost_hexagon.position
             if flat_top:
                 if i % 2 == 1:
-                    position = (x + 3/2*radius, y)
+                    position = (x + (1+i)*3/2*radius, y)
                 else:
-                    position = (x + 3/2*radius, y + minimal_radius)
+                    position = (x + (1+i)*3/2*radius, y + minimal_radius)
             else:
-                position = (x + 2*minimal_radius, y)
+                position = (x + (1+i)*2*minimal_radius, y)
             hexagon = create_hexagon(position, flat_top=flat_top)
             hexagons.append(hexagon)
 
@@ -155,6 +154,7 @@ def draw(gameDisplay, hexagons):
 
 
 def draw_hexagon(gameDisplay, hexagons):
+    """Template to draw hexagons"""
     # Draw hexagons
     for hexagon in hexagons:
         hexagon.render(gameDisplay)
