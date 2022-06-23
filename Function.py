@@ -1,9 +1,4 @@
 import pygame
-import os
-import random
-from Settings import *
-from os import path
-vec = pygame.math.Vector2
 
 """
     Sprite (Tools)
@@ -94,10 +89,6 @@ def init_sprite_text(self, text=None):
         print("Font not initialized")
     if self.font_color is None:
         print("Font color not initialized")
-
-# WIP (Change name)
-def init_sprite_text_rect(rect):
-    return [rect[0] + rect[2] // 2, rect[1] + rect[3] // 2]
 
 
 """

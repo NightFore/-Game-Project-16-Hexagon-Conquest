@@ -1,13 +1,8 @@
 import pygame
 import random
-from pygame.locals import *
 from os import path
 from Main import *
-from Class import *
-from Function import *
-from Settings import *
 from ScaledGame import *
-vec = pygame.math.Vector2
 
 class Main:
     def __init__(self):
@@ -32,7 +27,6 @@ class Main:
         self.sound_dict = self.main_dict["sound"]
         self.font_dict = self.main_dict["font"]
         self.menu_dict = self.main_dict["menu"]
-        self.button_dict = self.main_dict["button"]
 
         # Directories
         self.game_folder = path.dirname(__file__)
@@ -104,11 +98,9 @@ class Main:
         # Dictionaries
         self.game.main_dict = self.main_dict
         self.game.settings_dict = self.main_dict["settings"]
-        self.game.button_dict = self.button_dict
 
         # Sprites
         self.game.players = pygame.sprite.Group()
-        self.game.buttons = pygame.sprite.Group()
 
     # Game Loop ----------------------- #
     def run(self):
@@ -118,10 +110,6 @@ class Main:
             self.events()
             if not self.paused:
                 self.update()
-            else:
-                for button in self.game.buttons:
-                    if button.item == "pause":
-                        button.update()
             self.draw()
         self.quit_game()
 
@@ -235,7 +223,6 @@ class Main:
             self.clear_sprites()
             self.update_background(self.menu_dict[self.menu]["background"])
             self.update_music(self.menu_dict[self.menu]["music"])
-            self.update_button(self.button_dict[self.menu], data=self.menu)
 
     def update_background(self, background):
         if isinstance(background, str):
@@ -256,10 +243,6 @@ class Main:
                 pygame.mixer.music.load(self.music)
                 pygame.mixer.music.play(-1)
 
-    def update_button(self, buttons, data):
-        for button in buttons:
-            Button(self, self.game.buttons, self.button_dict, data=data, item=button)
-
     def update_volume(self, dv=0):
         self.music_volume = min(max(0, self.music_volume + dv), 100)
         pygame.mixer.music.set_volume(self.music_volume/100)
@@ -269,6 +252,7 @@ class Main:
             sprite.kill()
 
     def align_rect(self, surface_rect, pos, align):
+        """Returns the rect aligned to the position"""
         if isinstance(surface_rect, pygame.Surface):
             rect = surface_rect.get_rect()
         else:
@@ -294,46 +278,51 @@ class Main:
             rect.center = pos
         return rect
 
-    def draw_text(self, text, font, color, pos, align="nw"):
-        if text is not None and font is not None:
-            if not isinstance(text, str):
-                text = str(text)
-            text_surface = font.render(text, True, color)
-            text_rect = self.align_rect(text_surface, pos, align)
-            self.gameDisplay.blit(text_surface, text_rect)
-
-            # Debug Mode
-            if self.debug_mode:
-                pygame.draw.rect(self.gameDisplay, CYAN, text_rect, 1)
-
-    def draw_surface(self, rect, color, border_size=[0, 0], border_color=None, align="center"):
-        # Initialization
-        x, y, w, h = int(rect[0]), int(rect[1]), int(rect[2]), int(rect[3])
-        border_w, border_h = border_size[0], border_size[1]
-        if w - 2*border_w <= 0 or h - 2*border_h <= 0:
-            w = max(w, 2*border_w + 1)
-            h = max(h, 2*border_h + 1)
-
-        # Border Surface
-        if border_size != [0, 0] and border_color is not None:
-            surface = pygame.Surface((w, h))
-            surface_rect = self.align_rect(surface, (x, y), align)
-            surface.fill(border_color)
-            self.gameDisplay.blit(surface, surface_rect)
-
-        # Main Surface
-        surface = pygame.Surface((w - 2*border_w, h - 2*border_h))
-        surface_rect = self.align_rect(surface, (x + border_w, y + border_h), align)
-        surface.fill(color)
-        self.gameDisplay.blit(surface, surface_rect)
-
     def update_sprite_rect(self, sprite, x=None, y=None):
+        """Update sprite's rect position"""
         if x is None:
             x = sprite.pos[0]
         if y is None:
             y = sprite.pos[1]
         sprite.pos = [x, y]
         sprite.rect = self.align_rect(sprite.surface, (int(sprite.pos[0]), int(sprite.pos[1])), sprite.align)
+
+    def compute_text(self, text, font, color, pos, align="nw"):
+        """Returns a surface and its rectangle with text drawn on it"""
+        if text is not None and font is not None:
+            text = str(text)
+            text_surface = font.render(text, True, color)
+            text_surface_rect = self.align_rect(text_surface, pos, align)
+            return text_surface, text_surface_rect
+        else:
+            return None, None
+
+    def compute_text_pos(self, rect):
+        """Returns text position centered in the rectangle"""
+        return [rect[0] + rect[2] // 2, rect[1] + rect[3] // 2]
+
+    def compute_surface(self, rect, color, border_size=[0, 0], border_color=None, align="center", return_rect=True):
+        """Returns a surface and its rectangle filled with color and border_color"""
+        # Fills a surface with border_color
+        surface = pygame.Surface((rect[2], rect[3]))
+        if border_color is not None:
+            surface.fill(border_color)
+
+        # Fills the inside with color
+        surface_in_rect = [border_size[0], border_size[1], rect[2] - 2*border_size[0], rect[3] - 2*border_size[1]]
+        pygame.draw.rect(surface, color, surface_in_rect)
+
+        if return_rect:
+            surface_out_rect = self.align_rect(surface, (rect[0], rect[1]), align)
+            return surface, surface_out_rect
+        else:
+            return surface
+
+    def play_sound(self, sound, check=False):
+        """Plays a sound and prevents repetition by returning True"""
+        if sound is not None and not check:
+            pygame.mixer.Sound.play(sound)
+            return True
 
 m = Main()
 while True:
