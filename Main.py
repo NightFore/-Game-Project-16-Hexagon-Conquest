@@ -1,13 +1,14 @@
 import pygame
 from Button import *
+from Dict import *
 from Interface import *
 from Hexagon import *
 
-class Game:
-    def __init__(self, main):
+class Main:
+    def __init__(self, game):
         # Game Initialization
-        self.main = main
-        self.game = self
+        self.game = game
+        self.main = self
         self.load()
         self.new()
 
@@ -26,7 +27,7 @@ class Game:
         self.player_color = (125, 125, 125)
 
         self.buttons = Button(self, button_dict, "main")
-        self.interfaces = Interface(self.main, interface_dict, "main")
+        self.interfaces = Interface(self, interface_dict, "main")
 
 
         # WIP
@@ -38,7 +39,7 @@ class Game:
 
     def new_game(self):
         # Initialization
-        self.main.update_menu()
+        self.game.update_menu()
         self.load_map()
 
     def end_turn(self):
@@ -68,11 +69,6 @@ class Game:
             self.hexagon_map[line][column] = type
 
     def update(self):
-        # Main
-        self.click = self.main.click
-        self.mouse = self.main.mouse
-        self.event = self.main.event
-
         # Interface
         self.interfaces.item_dict["crystals"]["text"] = "%i Crystals" % self.player.crystals
         self.interfaces.item_dict["gas"]["text"] = "%i Gas" % self.player.gas
@@ -94,14 +90,14 @@ class Game:
 
     def draw(self):
         for hexagon in self.hexagons:
-            hexagon.render(self.gameDisplay)
+            hexagon.render(self.game.gameDisplay)
 
         self.colliding_hexagons = [hexagon for hexagon in self.hexagons if hexagon.collide_with_point(self.mouse)]
         for hexagon in self.colliding_hexagons:
             for neighbour in hexagon.compute_neighbours(self.hexagons):
-                # neighbour.render_highlight(self.gameDisplay, border_color=(100, 100, 100))
+                # neighbour.render_highlight(self.game.gameDisplay, border_color=(100, 100, 100))
                 pass
-            hexagon.render_highlight(self.gameDisplay, border_color=(0, 0, 0))
+            hexagon.render_highlight(self.game.gameDisplay, border_color=(0, 0, 0))
 
         self.buttons.draw()
         self.interfaces.draw()
@@ -143,98 +139,3 @@ class Player:
 
     def production(self, item):
         pass
-
-MAIN_DICT = {
-    # Init (Settings) ----------------- #
-    "game": {
-        "project_title": "Hexagon", "screen_size": (1280, 720), "FPS": 60,
-        "default_music_volume": 5, "default_sound_volume": 75,
-        "key_repeat": (100, 30)},
-
-
-    # Game (Settings) ----------------- #
-    "settings": {
-    },
-
-    # Background Dict ----------------- #
-    "background": {
-        None: None,
-        "default": {
-            "color": DARK_SKY_BLUE,
-            "image": None,
-        },
-    },
-
-
-    # Music Dict ---------------------- #
-    "music": {
-        "default": None,
-    },
-
-
-    # Sound Dict ---------------------- #
-    "sound": {
-    },
-
-
-    # Font Dict ----------------------- #
-    "font": {
-        "default": {"ttf": None, "size": 100},
-        "LiberationSerif": {"ttf": "LiberationSerif-Regular.ttf", "size": 40},
-        "LiberationSerif_30": {"ttf": "LiberationSerif-Regular.ttf", "size": 30}
-    },
-
-
-    # Menu Dict ----------------------- #
-    "menu": {
-        "main_menu": {
-            "background": "default",
-            "music": "default",
-        },
-    },
-}
-
-
-
-
-
-
-
-
-
-
-
-button_dict = {
-    "settings": {
-        "default": {
-            "box_size": [280, 50], "box_active_color": DARK_SKY_BLUE, "box_inactive_color": LIGHT_SKY_BLUE, "box_align": "nw",
-            "box_border_size": [5, 5], "box_border_color": BLACK,
-            "text_font": "LiberationSerif", "text_color": WHITE, "text_align": "center",
-            "sound_action": None, "sound_active": None, "sound_inactive": None},
-    },
-
-    "title": {},
-    "main": {
-        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "action": "self.game.new_game"},
-        "end_turn": {"settings": "default", "position": [10, 120], "text": "End Turn", "action": "self.game.end_turn"},
-    }
-}
-
-interface_dict = {
-    "settings": {
-        "default": {
-            "box_size": [180, 50], "box_color": DARKGREY, "box_align": "center",
-            "box_border_size": [6, 6], "box_border_color": LIGHTSKYGREY,
-            "text_font": "LiberationSerif_30", "text_color": WHITE, "text_align": "center"},
-        "main": {
-            "box_size": [180, 50], "box_color": DARKGREY, "box_align": "nw",
-            "box_border_size": [6, 6], "box_border_color": LIGHTSKYGREY,
-            "text_font": "LiberationSerif_30", "text_color": WHITE, "text_align": "center"},
-    },
-
-    "title": {},
-    "main": {
-        "crystals": {"settings": "main", "position": [710, 10], "text": None},
-        "gas": {"settings": "main", "position": [900, 10], "text": None},
-        "supply": {"settings": "main", "position": [1090, 10], "text": None}},
-}

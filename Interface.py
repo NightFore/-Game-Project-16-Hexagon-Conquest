@@ -15,8 +15,9 @@ interface_dict_template = {
 
 class Interface:
     def __init__(self, main, dict, data, item=None):
-        """Initialization: main, dict, data, items"""
+        """Initialization: game, main, dict, data, items"""
         self.main = main
+        self.game = main.game
         self.dict = dict
         self.data = self.dict[data]
         self.items = [self.data[item]] if item is not None else [item for item in self.data]
@@ -43,15 +44,15 @@ class Interface:
 
             # Text
             dict["text"] = data["text"]
-            dict["text_pos"] = self.main.compute_text_pos(dict["box_rect"])
-            dict["text_font"] = self.main.font_dict[settings["text_font"]]
+            dict["text_pos"] = self.game.compute_text_pos(dict["box_rect"])
+            dict["text_font"] = self.game.font_dict[settings["text_font"]]
             dict["text_color"] = settings["text_color"]
             dict["text_align"] = settings["text_align"]
             dict["text_check"] = dict["text"]
 
             # Surface
-            dict["box_surface"], dict["box_surface_rect"] = self.main.compute_surface(dict["box_rect"], dict["box_color"], dict["box_border_size"], dict["box_border_color"], dict["box_align"])
-            dict["text_surface"], dict["text_surface_rect"] = self.main.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
+            dict["box_surface"], dict["box_surface_rect"] = self.game.compute_surface(dict["box_rect"], dict["box_color"], dict["box_border_size"], dict["box_border_color"], dict["box_align"])
+            dict["text_surface"], dict["text_surface_rect"] = self.game.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
 
             # Output
             self.item_dict[item] = dict
@@ -64,15 +65,13 @@ class Interface:
             dict = self.item_dict[item]
 
             # Box
-            self.main.gameDisplay.blit(dict["box_surface"], dict["box_surface_rect"])
+            self.game.gameDisplay.blit(dict["box_surface"], dict["box_surface_rect"])
 
-            # Text
+            # Text Check
             if dict["text"] != dict["text_check"]:
-                dict["text_surface"], dict["text_surface_rect"] = self.main.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
+                dict["text_surface"], dict["text_surface_rect"] = self.game.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
                 dict["text_check"] = dict["text"]
 
+            # Text
             if dict["text_surface"] is not None and dict["text_surface_rect"] is not None:
-                self.main.gameDisplay.blit(dict["text_surface"], dict["text_surface_rect"])
-
-
-
+                self.game.gameDisplay.blit(dict["text_surface"], dict["text_surface_rect"])

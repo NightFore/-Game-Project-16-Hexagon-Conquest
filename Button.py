@@ -11,14 +11,14 @@ button_dict_template = {
     },
 
     "title": {
-        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "image": None, "action": "self.game.new_game"}},
+        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "image": None, "action": "self.main.new_game"}},
 }
 
 class Button:
-    def __init__(self, game, dict, data, item=None):
-        """Initialization: main, dict, data, items"""
-        self.game = game
-        self.main = game.main
+    def __init__(self, main, dict, data, item=None):
+        """Initialization: game, main, dict, data, items"""
+        self.main = main
+        self.game = main.game
         self.dict = dict
         self.data = self.dict[data]
         self.items = [self.data[item]] if item is not None else [item for item in self.data]
@@ -48,17 +48,17 @@ class Button:
 
             # Text
             dict["text"] = data["text"]
-            dict["text_pos"] = self.main.compute_text_pos(dict["box_rect"])
-            dict["text_font"] = self.main.font_dict[settings["text_font"]]
+            dict["text_pos"] = self.game.compute_text_pos(dict["box_rect"])
+            dict["text_font"] = self.game.font_dict[settings["text_font"]]
             dict["text_color"] = settings["text_color"]
             dict["text_align"] = settings["text_align"]
             dict["text_check"] = dict["text"]
 
             # Surface
-            dict["box_surface_active"], dict["box_surface_rect"] = self.main.compute_surface(dict["box_rect"], dict["box_active_color"], dict["box_border_size"], dict["box_border_color"], dict["box_align"])
-            dict["box_surface_inactive"] = self.main.compute_surface(dict["box_rect"], dict["box_inactive_color"], dict["box_border_size"], dict["box_border_color"], dict["box_align"], False)
+            dict["box_surface_active"], dict["box_surface_rect"] = self.game.compute_surface(dict["box_rect"], dict["box_active_color"], dict["box_border_size"], dict["box_border_color"], dict["box_align"])
+            dict["box_surface_inactive"] = self.game.compute_surface(dict["box_rect"], dict["box_inactive_color"], dict["box_border_size"], dict["box_border_color"], dict["box_align"], False)
             dict["box_surface"] = dict["box_surface_inactive"]
-            dict["text_surface"], dict["text_surface_rect"] = self.main.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
+            dict["text_surface"], dict["text_surface_rect"] = self.game.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
 
             # Sound
             dict["sound_action"] = settings["sound_action"]
@@ -69,39 +69,48 @@ class Button:
             # Action
             dict["action"] = eval(data["action"])
 
+            # Pause button
+            if item == "pause":
+                self.game.pause_button_update = self.pause_button_update
+
             # Output
             self.item_dict[item] = dict
+
+    def pause_button_update(self):
+        item_dict = {"pause": self.item_dict["pause"]}
+        self.update(item_dict)
+
+    def update(self, item_dict=None):
+        item_dict = self.item_dict if item_dict is None else item_dict
+        for item in item_dict:
+            dict = self.item_dict[item]
+            if dict["box_surface_rect"].collidepoint(self.game.mouse):
+                # Active
+                dict["box_surface"] = dict["box_surface_active"]
+                dict["sound_check"] = self.game.play_sound(dict["sound_active"], dict["sound_check"])
+
+                # Action
+                if self.game.click[1]:
+                    self.game.play_sound(dict["sound_action"])
+                    if dict["action"] is not None:
+                        dict["action"]()
+            else:
+                # Inactive
+                dict["box_surface"] = dict["box_surface_inactive"]
+                dict["sound_check"] = self.game.play_sound(dict["sound_inactive"], dict["sound_check"])
 
     def draw(self):
         for item in self.item_dict:
             dict = self.item_dict[item]
 
             # Box
-            self.main.gameDisplay.blit(dict["box_surface"], dict["box_surface_rect"])
+            self.game.gameDisplay.blit(dict["box_surface"], dict["box_surface_rect"])
 
             # Text Check
             if dict["text"] != dict["text_check"]:
-                dict["text_surface"], dict["text_surface_rect"] = self.main.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
+                dict["text_surface"], dict["text_surface_rect"] = self.game.compute_text(dict["text"], dict["text_font"], dict["text_color"], dict["text_pos"], dict["text_align"])
                 dict["text_check"] = dict["text"]
 
             # Text
             if dict["text_surface"] is not None and dict["text_surface_rect"] is not None:
-                self.main.gameDisplay.blit(dict["text_surface"], dict["text_surface_rect"])
-
-    def update(self):
-        for item in self.item_dict:
-            dict = self.item_dict[item]
-            if dict["box_surface_rect"].collidepoint(self.main.mouse):
-                # Active
-                dict["box_surface"] = dict["box_surface_active"]
-                dict["sound_check"] = self.main.play_sound(dict["sound_active"], dict["sound_check"])
-
-                # Action
-                if self.main.click[1]:
-                    self.main.play_sound(dict["sound_action"])
-                    if dict["action"] is not None:
-                        dict["action"]()
-            else:
-                # Inactive
-                dict["box_surface"] = dict["box_surface_inactive"]
-                dict["sound_check"] = self.main.play_sound(dict["sound_inactive"], dict["sound_check"])
+                self.game.gameDisplay.blit(dict["text_surface"], dict["text_surface_rect"])
