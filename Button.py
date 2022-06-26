@@ -1,19 +1,6 @@
 import pygame
 from Settings import *
 
-button_dict_template = {
-    "settings": {
-        "default": {
-            "box_size": [280, 50], "box_active_color": DARK_SKY_BLUE, "box_inactive_color": LIGHT_SKY_BLUE, "box_align": "nw",
-            "box_border_size": [5, 5], "box_border_color": BLACK,
-            "text_font": "LiberationSerif", "text_color": WHITE, "text_align": "center",
-            "sound_action": None, "sound_active": None, "sound_inactive": None},
-    },
-
-    "title": {
-        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "image": None, "action": "self.main.new_game"}},
-}
-
 class Button:
     def __init__(self, main, dict, data, item=None):
         """Initialization: game, main, dict, data, items"""
@@ -67,6 +54,7 @@ class Button:
             dict["sound_check"] = False
 
             # Action
+            dict["argument"] = data["argument"]
             dict["action"] = eval(data["action"])
 
             # Pause button
@@ -93,7 +81,10 @@ class Button:
                 if self.game.click[1]:
                     self.game.play_sound(dict["sound_action"])
                     if dict["action"] is not None:
-                        dict["action"]()
+                        if dict["argument"] is not None:
+                            dict["action"](dict["argument"])
+                        else:
+                            dict["action"]()
             else:
                 # Inactive
                 dict["box_surface"] = dict["box_surface_inactive"]

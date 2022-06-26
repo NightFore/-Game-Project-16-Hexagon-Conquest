@@ -19,19 +19,25 @@ class Game:
 
     def load(self):
         """Initialization"""
-        # Dict
+        # Dictionaries
         self.game_dict = game_dict
+        self.settings_dict = self.game_dict["settings"]
         self.menu_dict = self.game_dict["menu"]
         self.background_dict = self.game_dict["background"]
+        self.font_dict = self.game_dict["font"]
+        self.graphic_dict = self.game_dict["graphic"]
+        self.music_dict = self.game_dict["music"]
+        self.sound_dict = self.game_dict["sound"]
 
-        # Folder
+        # Folders
         self.game_folder = path.dirname(__file__)
         self.data_folder = path.join(self.game_folder, "data")
-
+        self.font_folder = path.join(self.data_folder, "font")
+        self.graphic_folder = path.join(self.data_folder, "graphic")
+        self.music_folder = path.join(self.data_folder, "music")
+        self.sound_folder = path.join(self.data_folder, "sound")
 
         """Settings"""
-        self.settings_dict = self.game_dict["settings"]
-
         # Game
         self.project_title = self.settings_dict["project_title"]
         self.screen_size = self.screen_width, self.screen_height = self.settings_dict["screen_size"]
@@ -47,12 +53,7 @@ class Game:
         self.key_delay, self.key_interval = self.settings_dict["key_repeat"]
         pygame.key.set_repeat(self.key_delay, self.key_interval)
 
-
         """Font"""
-        self.font_dict = self.game_dict["font"]
-        self.font_folder = path.join(self.data_folder, "font")
-
-        # Load all fonts
         for font in self.font_dict:
             font_ttf, font_size = self.font_dict[font]["ttf"], self.font_dict[font]["size"]
             if font_ttf is not None:
@@ -60,34 +61,19 @@ class Game:
             self.font_dict[font] = pygame.font.Font(font_ttf, font_size)
         self.font = self.font_dict["default"]
 
-
         """Graphic"""
-        self.graphic_dict = self.game_dict["graphic"]
-        self.graphic_folder = path.join(self.data_folder, "graphic")
-
-        # Load and convert all graphics
         for graphic in self.graphic_dict:
             graphic_path = path.join(self.graphic_folder, self.graphic_dict[graphic])
             graphic_image = pygame.image.load(graphic_path)
             graphic_surface = pygame.Surface.convert_alpha(graphic_image)
             self.graphic_dict[graphic] = graphic_surface
 
-
         """Music"""
-        self.music_dict = self.game_dict["music"]
-        self.music_folder = path.join(self.data_folder, "music")
-
-        # Load all musics
         for music in self.music_dict:
             if self.music_dict[music] is not None:
                 self.music_dict[music] = path.join(self.music_folder, self.music_dict[music])
 
-
         """Sound"""
-        self.sound_dict = self.game_dict["sound"]
-        self.sound_folder = path.join(self.data_folder, "sound")
-
-        # Load all sound effects
         for sound in self.sound_dict:
             self.sound_dict[sound] = pygame.mixer.Sound(path.join(self.sound_folder, self.sound_dict[sound]))
             self.sound_dict[sound].set_volume(self.sound_volume / 100)
@@ -96,7 +82,7 @@ class Game:
         """Game"""
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.playing = True
-        self.menu = "main_menu"
+        self.menu = "title"
 
         """Settings"""
         self.background_image = None
@@ -104,9 +90,9 @@ class Game:
         self.music = None
 
         """Pause"""
-        self.pause_button_update = None
         self.paused = False
         self.paused_check = False
+        self.pause_button_update = None
         self.pause_text_surface, self.pause_text_rect = self.compute_text("Game Paused", self.font, RED, (self.screen_width // 2, self.screen_height // 2), align="center")
         self.dim_screen = pygame.Surface(self.gameDisplay.get_size()).convert_alpha()
         self.dim_screen.fill((100, 100, 100, 120))
@@ -132,19 +118,6 @@ class Game:
         pygame.quit()
         quit()
 
-    def pause_game(self, paused_check=False):
-        """Pauses the game: paused_check=True when pausing the game with a keyboard to avoid repetition"""
-        if not self.paused_check:
-            self.paused_check = True
-            if not self.paused:
-                self.paused = True
-                pygame.mixer.music.pause()
-            elif self.paused:
-                self.paused = False
-                pygame.mixer.music.unpause()
-        if not paused_check:
-            self.paused_check = False
-
     def events(self):
         """Click: None, Left, Middle, Right, Scroll Up, Scroll Down"""
         self.click = self.main.click = [None, False, False, False, False, False]
@@ -152,7 +125,7 @@ class Game:
         """Events"""
         self.event = self.main.event = pygame.event.get()
         for event in self.event:
-            # Rescales mouse position to screen size
+            # Rescale mouse position to screen size
             self.mouse = self.main.mouse = pygame.mouse.get_pos()
             if self.gameDisplay.factor_w != 1 or self.gameDisplay.factor_h != 1:
                 mouse_w = int((self.mouse[0] - self.gameDisplay.game_gap[0]) / self.gameDisplay.factor_w)
@@ -168,16 +141,26 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     self.quit_game()
                 if event.key == pygame.K_p:
-                    self.pause_game(True)
+                    self.paused_check = self.pause_game(self.paused_check)
                 if event.key == pygame.K_h:
                     self.debug_mode = not self.debug_mode
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_p:
-                    self.pause_game(False)
+                    self.paused_check = False
 
             # Quit Game (X Button)
             if event.type == pygame.QUIT:
                 self.quit_game()
+
+    def pause_game(self, paused_check=False):
+        """Pause the game: self.paused_check = self.pause_game(self.paused_check) to avoid repetition when holding pause shortcut"""
+        if not paused_check:
+            self.paused = not self.paused
+            if self.paused:
+                pygame.mixer.music.pause()
+            else:
+                pygame.mixer.music.unpause()
+        return True
 
     def update(self):
         self.main.update()
@@ -185,12 +168,12 @@ class Game:
 
     def draw(self):
         # Background ------------------ #
-        if self.background_image is not None:
-            self.gameDisplay.blit(self.background_image, (0, 0))
         if self.background_color is not None:
             self.gameDisplay.fill(self.background_color)
+        if self.background_image is not None:
+            self.gameDisplay.blit(self.background_image, (0, 0))
 
-        # Game ------------------------ #
+        # Main ------------------------ #
         self.main.draw()
 
         # Sprite --------------------- #
@@ -207,49 +190,53 @@ class Game:
         # Update ---------------------- #
         self.gameDisplay.update(self.event)
 
-    def update_menu(self, menu=None):
-        # Default menu is main_menu
-        if menu is None:
-            self.update_menu(self.menu)
-        else:
-            self.menu = menu
-            self.clear_sprites()
-            self.update_background(self.menu_dict[self.menu]["background"])
-            self.update_music(self.menu_dict[self.menu]["music"])
-
-    def update_background(self, background):
-        if isinstance(background, str):
-            background = self.background_dict[background]
-        if background is not None:
-            if background["color"] is not None:
-                self.background_color = background["color"]
-            if background["image"] is not None:
-                self.background_image = load_image(self.graphics_folder, background["image"])
-
-    def update_music(self, music):
-        if isinstance(music, str):
-            music = self.music_dict[music]
-        if music is not None:
-            music = path.join(self.music_folder, music)
-            if self.music != music:
-                self.music = music
-                pygame.mixer.music.load(self.music)
-                pygame.mixer.music.play(-1)
-
-    def update_volume(self, dv=0):
-        self.music_volume = min(max(0, self.music_volume + dv), 100)
-        pygame.mixer.music.set_volume(self.music_volume/100)
-
     def clear_sprites(self):
+        """Remove all sprites"""
         for sprite in self.all_sprites:
             sprite.kill()
 
-    def align_rect(self, surface_rect, pos, align):
-        """Returns the rect aligned to the position"""
-        if isinstance(surface_rect, pygame.Surface):
-            rect = surface_rect.get_rect()
-        else:
-            rect = pygame.Rect(surface_rect)
+    def update_menu(self, menu=None):
+        """Update the menu: Default menu is title"""
+        self.menu = menu if menu is not None else self.menu
+        self.clear_sprites()
+        dict = self.menu_dict[self.menu]
+        self.update_background(dict["background"])
+        self.update_music(dict["music"])
+        # self.main.buttons = Button(self.main, button_dict, self.menu)
+        # self.main.interfaces = Interface(self.main, interface_dict, self.menu)
+
+    def update_background(self, background):
+        """Update the background"""
+        if background in self.background_dict:
+            background = self.background_dict[background]
+        if background["color"] is not None:
+            self.background_color = background["color"]
+        if background["image"] is not None:
+            self.background_image = load_image(self.graphics_folder, background["image"])
+
+    def update_music(self, music):
+        """Update the music"""
+        if music in self.music_dict:
+            music = self.music_dict[music]
+        if self.music != music and music is not None:
+            self.music = music
+            pygame.mixer.music.load(self.music)
+            pygame.mixer.music.play(-1)
+
+    def update_music_volume(self, dv=0):
+        """Update the music volume by dv (from 0 to 100)"""
+        self.music_volume = min(max(0, self.music_volume + dv), 100)
+        pygame.mixer.music.set_volume(self.music_volume/100)
+
+    def play_sound(self, sound, check=False):
+        """Play a sound and prevents repetition by returning True"""
+        if sound is not None and not check:
+            pygame.mixer.Sound.play(sound)
+            return True
+
+    def align_surface_rect(self, surface_rect, pos, align):
+        """Return the surface_rect aligned to the position"""
+        rect = surface_rect.get_rect()
         pos = (int(pos[0]), int(pos[1]))
         if align == "nw":
             rect.topleft = pos
@@ -271,51 +258,34 @@ class Game:
             rect.center = pos
         return rect
 
-    def update_sprite_rect(self, sprite, x=None, y=None):
-        """Update sprite's rect position"""
-        if x is None:
-            x = sprite.pos[0]
-        if y is None:
-            y = sprite.pos[1]
-        sprite.pos = [x, y]
-        sprite.rect = self.align_rect(sprite.surface, (int(sprite.pos[0]), int(sprite.pos[1])), sprite.align)
-
-    def compute_text(self, text, font, color, pos, align="nw"):
-        """Returns a surface and its rectangle with text drawn on it"""
-        if text is not None and font is not None:
-            text = str(text)
-            text_surface = font.render(text, True, color)
-            text_surface_rect = self.align_rect(text_surface, pos, align)
-            return text_surface, text_surface_rect
-        else:
-            return None, None
-
-    def compute_text_pos(self, rect):
-        """Returns text position centered in the rectangle"""
-        return [rect[0] + rect[2] // 2, rect[1] + rect[3] // 2]
-
     def compute_surface(self, rect, color, border_size=[0, 0], border_color=None, align="center", return_rect=True):
-        """Returns a surface and its rectangle filled with color and border_color"""
-        # Fills a surface with border_color
+        """Return a surface and its rectangle filled with color and border_color"""
+        # Fill a surface with border_color
         surface = pygame.Surface((rect[2], rect[3]))
         if border_color is not None:
             surface.fill(border_color)
 
-        # Fills the inside with color
+        # Fill the inside with color
         surface_in_rect = [border_size[0], border_size[1], rect[2] - 2*border_size[0], rect[3] - 2*border_size[1]]
         pygame.draw.rect(surface, color, surface_in_rect)
 
         if return_rect:
-            surface_out_rect = self.align_rect(surface, (rect[0], rect[1]), align)
+            surface_out_rect = self.align_surface_rect(surface, (rect[0], rect[1]), align)
             return surface, surface_out_rect
-        else:
-            return surface
+        return surface
 
-    def play_sound(self, sound, check=False):
-        """Plays a sound and prevents repetition by returning True"""
-        if sound is not None and not check:
-            pygame.mixer.Sound.play(sound)
-            return True
+    def compute_text(self, text, font, color, pos, align="nw"):
+        """Return a surface and its rectangle with text drawn on it"""
+        if text is not None and font is not None:
+            text = str(text)
+            text_surface = font.render(text, True, color)
+            text_surface_rect = self.align_surface_rect(text_surface, pos, align)
+            return text_surface, text_surface_rect
+        return None, None
+
+    def compute_text_pos(self, rect):
+        """Return text position centered in the rectangle"""
+        return [rect[0] + rect[2] // 2, rect[1] + rect[3] // 2]
 
 m = Game()
 while True:

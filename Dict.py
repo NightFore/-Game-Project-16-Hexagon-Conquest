@@ -7,17 +7,24 @@ game_dict = {
     "settings": {
         "project_title": "Hexagon Conquest", "screen_size": (1280, 720), "FPS": 60,
         "default_music_volume": 5, "default_sound_volume": 75,
-        "key_repeat": (100, 30)},
+        "key_repeat": (100, 30)
+    },
 
-    # Background Dict ----------------- #
+    # Menu Dict ----------------------- #
+    "menu": {
+        "title": {
+            "background": "default",
+            "music": "default"
+        }
+    },
+
+    # Background Dict ----------------------- #
     "background": {
-        None: None,
         "default": {
             "color": DARK_SKY_BLUE,
             "image": None,
         },
     },
-
 
     # Font Dict ----------------------- #
     "font": {
@@ -26,29 +33,17 @@ game_dict = {
         "LiberationSerif_30": {"ttf": "LiberationSerif-Regular.ttf", "size": 30}
     },
 
-
     # Graphic Dict ----------------------- #
     "graphic": {
     },
-
 
     # Music Dict ---------------------- #
     "music": {
         "default": None,
     },
 
-
     # Sound Dict ---------------------- #
     "sound": {
-    },
-
-
-    # Menu Dict ----------------------- #
-    "menu": {
-        "main_menu": {
-            "background": "default",
-            "music": "default",
-        },
     },
 }
 
@@ -63,9 +58,12 @@ button_dict = {
 
     "title": {},
     "main": {
-        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "action": "self.main.new_game"},
-        "end_turn": {"settings": "default", "position": [10, 120], "text": "End Turn", "action": "self.main.end_turn"},
-        "pause": {"settings": "default", "position": [10, 190], "text": "Pause", "action": "self.game.pause_game"},
+        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "argument": None, "action": "self.main.new_game"},
+        "end_turn": {"settings": "default", "position": [10, 120], "text": "End Turn", "argument": None, "action": "self.main.end_turn"},
+        "pause": {"settings": "default", "position": [10, 190], "text": "Pause", "argument": None, "action": "self.game.pause_game"},
+        "volume_up": {"settings": "default", "position": [10, 260], "text": "Volume +", "argument": +5, "action": "self.game.update_music_volume"},
+        "volume_down": {"settings": "default", "position": [10, 330], "text": "Volume -", "argument": -5, "action": "self.game.update_music_volume"},
+        "fullscreen": {"settings": "default", "position": [10, 400], "text": "Fullscreen", "argument": None, "action": "self.game.gameDisplay.fullscreen"},
     }
 }
 

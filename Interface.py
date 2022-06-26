@@ -1,18 +1,6 @@
 import pygame
 from Settings import *
 
-interface_dict_template = {
-    "settings": {
-        "default": {
-            "box_size": [180, 50], "box_color": DARKGREY, "box_align": "center",
-            "box_border_size": [6, 6], "box_border_color": LIGHTSKYGREY,
-            "text_font": "LiberationSerif_30", "text_color": WHITE, "text_align": "center"},
-    },
-
-    "title": {
-        "title_screen": {"settings": "default", "position": [640, 10], "text": "Title Screen"}},
-}
-
 class Interface:
     def __init__(self, main, dict, data, item=None):
         """Initialization: game, main, dict, data, items"""

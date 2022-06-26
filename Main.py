@@ -22,20 +22,16 @@ class Main:
         self.load_map()
 
     def new(self):
-        self.colliding_hexagons = []
-        self.player_worker = 5
-        self.player_color = (125, 125, 125)
-
         self.buttons = Button(self, button_dict, "main")
         self.interfaces = Interface(self, interface_dict, "main")
+        self.main_dict = main_dict
 
+        self.colliding_hexagons = []
 
-        # WIP
-        wip_dict = {
-            "crystals": 500, "gas": 0, "supply": 0,
-            "citizen": 5, "miner": 2, "harvester": 0, "builder": 1, "soldier": 1
-        }
-        self.player = Player(0, wip_dict)
+        self.player_worker = 5
+        self.player_color = (125, 125, 125)
+        self.player = Player(0, self.main_dict)
+
 
     def new_game(self):
         # Initialization
@@ -139,3 +135,8 @@ class Player:
 
     def production(self, item):
         pass
+
+main_dict = {
+    "crystals": 500, "gas": 0, "supply": 0,
+    "citizen": 5, "miner": 2, "harvester": 0, "builder": 1, "soldier": 1
+}
