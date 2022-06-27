@@ -258,7 +258,7 @@ class Game:
             rect.center = pos
         return rect
 
-    def compute_surface(self, rect, color, border_size=[0, 0], border_color=None, align="center", return_rect=True):
+    def compute_surface(self, rect, color, border_size=[0, 0], border_color=None, align="center", return_rect=False):
         """Return a surface and its rectangle filled with color and border_color"""
         # Fill a surface with border_color
         surface = pygame.Surface((rect[2], rect[3]))
