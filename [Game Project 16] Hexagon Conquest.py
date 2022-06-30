@@ -1,6 +1,7 @@
 import pygame
 import random
 from os import path
+from Camera import *
 from Dict import *
 from Main import *
 from ScaledGame import *
@@ -89,6 +90,12 @@ class Game:
         self.background_color = None
         self.music = None
 
+        """Camera"""
+        camera_border_rect = [-320, 320, -180, 180]
+        self.player_camera_1 = Player_camera(self, (self.screen_width/2, self.screen_height/2), camera_border_rect)
+        self.player_camera_2 = Player_camera(self, (0, 0), camera_border_rect)
+        self.camera = Camera(self.screen_size, self.player_camera_1)
+
         """Pause"""
         self.paused = False
         self.paused_check = False
@@ -98,8 +105,9 @@ class Game:
         self.dim_screen.fill((100, 100, 100, 120))
 
         """Debug"""
+        self.debug_mode = False
+        self.debug_check = False
         self.debug_color = CYAN
-        self.debug_mode = True
 
     # Game Loop ----------------------- #
     def run(self):
@@ -125,12 +133,13 @@ class Game:
         """Events"""
         self.event = self.main.event = pygame.event.get()
         for event in self.event:
-            # Rescale mouse position to screen size
+            # Rescale mouse position to screen size and camera
             self.mouse = self.main.mouse = pygame.mouse.get_pos()
             if self.gameDisplay.factor_w != 1 or self.gameDisplay.factor_h != 1:
                 mouse_w = int((self.mouse[0] - self.gameDisplay.game_gap[0]) / self.gameDisplay.factor_w)
                 mouse_h = int(self.mouse[1] / self.gameDisplay.factor_h)
                 self.mouse = self.main.mouse = (mouse_w, mouse_h)
+            self.mouse_camera = self.main.mouse_camera = (self.mouse[0] + self.camera.offset.x, self.mouse[1] + self.camera.offset.y)
 
             # Mouse click
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -140,13 +149,25 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.quit_game()
-                if event.key == pygame.K_p:
+                elif event.key == pygame.K_p:
                     self.paused_check = self.pause_game(self.paused_check)
-                if event.key == pygame.K_h:
-                    self.debug_mode = not self.debug_mode
+                elif event.key == pygame.K_h:
+                    self.debug_check = self.debug_game(self.debug_check)
+                elif event.key == pygame.K_1:
+                    self.camera.method = self.camera.follow
+                elif event.key == pygame.K_2:
+                    self.camera.method = self.camera.border
+                elif event.key == pygame.K_3:
+                    self.camera.method = self.camera.auto
+                elif event.key == pygame.K_4:
+                    self.camera.set_player(self.player_camera_1)
+                elif event.key == pygame.K_5:
+                    self.camera.set_player(self.player_camera_2)
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_p:
                     self.paused_check = False
+                elif event.key == pygame.K_h:
+                    self.debug_check = False
 
             # Quit Game (X Button)
             if event.type == pygame.QUIT:
@@ -162,9 +183,20 @@ class Game:
                 pygame.mixer.music.unpause()
         return True
 
+    def debug_game(self, debug_check=False):
+        if not debug_check:
+            self.debug_mode = not self.debug_mode
+        return True
+
     def update(self):
         self.main.update()
         self.all_sprites.update()
+
+        """Camera"""
+        self.player_camera_1.update()
+        if self.debug_mode:
+            self.player_camera_2.update()
+        self.camera.update()
 
     def draw(self):
         # Background ------------------ #
@@ -173,10 +205,15 @@ class Game:
         if self.background_image is not None:
             self.gameDisplay.blit(self.background_image, (0, 0))
 
+        # Debug Surface --------------- #
+        rect = [0, 0, self.screen_width, self.screen_height]
+        rect[0], rect[1] = self.compute_camera_offset(rect)
+        pygame.draw.rect(self.gameDisplay, CYAN, rect)
+
         # Main ------------------------ #
         self.main.draw()
 
-        # Sprite --------------------- #
+        # Sprite ---------------------- #
         for sprite in self.all_sprites:
             sprite.draw()
             if self.debug_mode:
@@ -186,6 +223,10 @@ class Game:
         if self.paused:
             self.gameDisplay.blit(self.dim_screen, (0, 0))
             self.gameDisplay.blit(self.pause_text_surface, self.pause_text_rect)
+
+        """Camera"""
+        self.player_camera_1.draw()
+        self.player_camera_2.draw()
 
         # Update ---------------------- #
         self.gameDisplay.update(self.event)
@@ -286,6 +327,10 @@ class Game:
     def compute_text_pos(self, rect):
         """Return text position centered in the rectangle"""
         return [rect[0] + rect[2] // 2, rect[1] + rect[3] // 2]
+
+    def compute_camera_offset(self, item):
+        """Returns the position offset from the camera position"""
+        return int(item[0] - self.camera.offset.x), int(item[1] - self.camera.offset.y)
 
 m = Game()
 while True:

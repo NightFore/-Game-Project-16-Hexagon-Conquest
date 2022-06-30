@@ -98,14 +98,13 @@ class Main:
 
     def draw(self):
         for hexagon in self.hexagons:
-            hexagon.render(self.game.gameDisplay)
+            hexagon.render(self.game.gameDisplay, self.game.camera.offset)
 
-        self.colliding_hexagons = [hexagon for hexagon in self.hexagons if hexagon.collide_with_point(self.mouse)]
+        self.colliding_hexagons = [hexagon for hexagon in self.hexagons if hexagon.collide_with_point(self.mouse_camera)]
         for hexagon in self.colliding_hexagons:
-            for neighbour in hexagon.compute_neighbours(self.hexagons):
-                # neighbour.render_highlight(self.game.gameDisplay, border_color=(100, 100, 100))
-                pass
-            hexagon.render_highlight(self.game.gameDisplay, border_color=(0, 0, 0))
+            # for neighbour in hexagon.compute_neighbours(self.hexagons):
+            #     neighbour.render_highlight(self.game.gameDisplay, border_color=(100, 100, 100))
+            hexagon.render_highlight(self.game.gameDisplay, (0, 0, 0), self.game.camera.offset)
 
         self.interfaces.draw()
         self.buttons.draw()

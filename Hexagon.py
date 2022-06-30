@@ -78,15 +78,21 @@ class HexagonTile:
         brighten = lambda x, y: x + y if x + y < 255 else 255
         return tuple(brighten(x, offset) for x in self.color)
 
-    def render(self, gameDisplay) -> None:
-        """Renders the hexagon on the gameDisplay"""
-        pygame.draw.polygon(gameDisplay, self.highlight_color, self.vertices)
+    def compute_offset(self, offset):
+        vertices_new = []
+        for index in range(len(self.vertices)):
+            vertices_new.append((self.vertices[index][0] - offset[0], self.vertices[index][1] - offset[1]))
+        return vertices_new
 
-    def render_highlight(self, gameDisplay, border_color) -> None:
+    def render(self, gameDisplay, offset=(0, 0)) -> None:
+        """Renders the hexagon on the gameDisplay"""
+        pygame.draw.polygon(gameDisplay, self.highlight_color, self.compute_offset(offset))
+
+    def render_highlight(self, gameDisplay, border_color, offset=(0, 0)) -> None:
         """Draws a border around the hexagon with the specified color"""
         self.highlight_tick = self.max_highlight_ticks
-        pygame.draw.polygon(gameDisplay, self.highlight_color, self.vertices)
-        pygame.draw.lines(gameDisplay, border_color, True, self.vertices)
+        pygame.draw.polygon(gameDisplay, self.highlight_color, self.compute_offset(offset))
+        pygame.draw.lines(gameDisplay, border_color, True, self.compute_offset(offset))
 
     def update(self):
         """Updates tile highlights"""
