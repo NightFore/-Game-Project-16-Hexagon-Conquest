@@ -1,4 +1,5 @@
 import pygame
+from Function import *
 from Settings import *
 
 
@@ -50,50 +51,53 @@ game_dict = {
 
 button_dict = {
     "settings": {
+        "init_functions": {load_button, load_text, load_sound, load_action},
         "default": {
-            "size": [280, 50], "size_border": [5, 5], "align": "nw",
-            "color_active": DARK_SKY_BLUE, "color_inactive": LIGHT_SKY_BLUE, "color_border": BLACK,
+            "size": [280, 50], "color": [DARK_SKY_BLUE, LIGHT_SKY_BLUE], "align": "nw",
+            "border_size": [5, 5], "border_color": BLACK,
             "text_font": "LiberationSerif", "text_color": WHITE, "text_align": "center",
             "sound_action": None, "sound_active": None, "sound_inactive": None},
         "image": {
             "align": "center",
-            "sound_action": None, "sound_active": None, "sound_inactive": None,
-        }
+            "text_font": "LiberationSerif", "text_color": WHITE, "text_align": "center",
+            "sound_action": None, "sound_active": None, "sound_inactive": None}
     },
 
     "title": {},
     "main": {
-        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "argument": None, "action": "self.main.new_game"},
-        "end_turn": {"settings": "default", "position": [10, 120], "text": "End Turn", "argument": None, "action": "self.main.end_turn"},
-        "pause": {"settings": "default", "position": [10, 190], "text": "Pause", "argument": None, "action": "self.game.pause_game"},
+        "new_game": {"settings": "default", "position": [10, 50], "text": "New Game", "action": "self.main.new_game"},
+        "end_turn": {"settings": "default", "position": [10, 120], "text": "End Turn", "action": "self.main.end_turn"},
+        "pause": {"settings": "default", "position": [10, 190], "text": "Pause", "action": "self.game.pause_game"},
         "volume_up": {"settings": "default", "position": [10, 260], "text": "Volume +", "argument": +5, "action": "self.game.update_music_volume"},
         "volume_down": {"settings": "default", "position": [10, 330], "text": "Volume -", "argument": -5, "action": "self.game.update_music_volume"},
-        "fullscreen": {"settings": "default", "position": [10, 400], "text": "Fullscreen", "argument": None, "action": "self.game.gameDisplay.fullscreen"},
-        "test": {"settings": "default", "position": [10, 470], "text": "Test", "argument": None, "action": "self.main.test"},
+        "fullscreen": {"settings": "default", "position": [10, 400], "text": "Fullscreen", "action": "self.game.gameDisplay.fullscreen"},
+        "test": {"settings": "default", "position": [10, 470], "text": "Test", "action": "self.main.test"},
     },
     "test": {
-        "test_1": {"settings": "default", "position": [500, 615], "text": "Test", "argument": None, "action": "self.main.test"},
-        "test_2": {"settings": "image", "position": [400, 640], "image": ["button_exit_active", "button_exit_inactive"], "argument": None, "action": "self.game.quit_game"},
+        "test_1": {"settings": "default", "position": [500, 615], "text": "Test", "action": "self.main.test"},
+        "test_2": {"settings": "image", "position": [400, 640], "image": ["button_exit_active", "button_exit_inactive"], "action": "self.game.quit_game"},
     },
 }
 
 interface_dict = {
     "settings": {
+        "init_functions": {load_interface, load_text},
         "default": {
             "size": [180, 50], "color": DARKGREY, "align": "center",
-            "size_border": [6, 6], "color_border": LIGHTSKYGREY,
+            "border_size": [6, 6], "border_color": LIGHTSKYGREY,
             "text_font": "LiberationSerif_30", "text_color": WHITE, "text_align": "center"},
         "main": {
             "size": [180, 50], "color": DARKGREY, "align": "nw",
-            "size_border": [6, 6], "color_border": LIGHTSKYGREY,
+            "border_size": [6, 6], "border_color": LIGHTSKYGREY,
             "text_font": "LiberationSerif_30", "text_color": WHITE, "text_align": "center"},
         "big_test": {
             "size": [590, 80], "color": DARKGREY, "align": "center",
-            "size_border": [6, 6], "color_border": LIGHTSKYGREY,
+            "border_size": [6, 6], "border_color": LIGHTSKYGREY,
             "text_font": "LiberationSerif_30", "text_color": WHITE, "text_align": "center"},
     },
 
-    "title": {},
+    "title": {
+    },
     "main": {
         "test": {"settings": "big_test", "position": [975, 50], "text": None},
         "crystals": {"settings": "main", "position": [695, 25], "text": None},

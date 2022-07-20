@@ -49,7 +49,6 @@ class Player_camera(pygame.sprite.Sprite):
         # Debug
         self.camera_border_rect = camera_border_rect
         self.player_speed = 500
-        print(self.camera_border_rect)
 
     def get_keys(self):
         keys = pygame.key.get_pressed()

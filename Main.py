@@ -9,8 +9,6 @@ class Main:
         # Game Initialization
         self.game = game
         self.main = self
-        self.load()
-        self.new()
 
     def load(self):
         self.hexagon_map = [
@@ -22,20 +20,15 @@ class Main:
         self.load_map()
 
     def new(self):
-        self.interfaces = Interface(self, interface_dict, "main")
-        self.buttons = Button(self, button_dict, "main")
-        self.main_dict = main_dict
-
         self.colliding_hexagons = []
-
 
         # WIP
         self.player_worker = 5
         self.player_color = (125, 125, 125)
         self.player = Player(0, self.main_dict)
 
-        self.buttons_test = Button(self, button_dict, "test")
-        self.interface_test = Interface(self, interface_dict, "test")
+        self.buttons_sub = Button(self.game, button_dict, "test")
+        self.interface_sub = Interface(self.game, interface_dict, "test")
         self.test_active = False
 
     def new_game(self):
@@ -89,12 +82,10 @@ class Main:
                 line, column = self.convert_index(self.hexagons.index(hexagon))
                 self.hexagon_update(hexagon, line, column, 0, 0)
 
-        self.interfaces.update()
-        self.buttons.update()
 
         if self.test_active:
-            self.interface_test.update()
-            self.buttons_test.update()
+            self.interface_sub.update()
+            self.buttons_sub.update()
 
     def draw(self):
         for hexagon in self.hexagons:
@@ -106,12 +97,10 @@ class Main:
             #     neighbour.render_highlight(self.game.gameDisplay, border_color=(100, 100, 100))
             hexagon.render_highlight(self.game.gameDisplay, (0, 0, 0), self.game.camera.offset)
 
-        self.interfaces.draw()
-        self.buttons.draw()
 
         if self.test_active:
-            self.interface_test.draw()
-            self.buttons_test.draw()
+            self.interface_sub.draw()
+            self.buttons_sub.draw()
 
 class Player:
     def __init__(self, team, player_dict):

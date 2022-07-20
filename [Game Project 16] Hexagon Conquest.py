@@ -13,9 +13,9 @@ class Game:
         pygame.mixer.init()
         pygame.init()
         random.seed()
+        self.main = Main(self)
         self.load()
         self.new()
-        self.main = Main(self)
         self.update_menu()
 
     def load(self):
@@ -79,6 +79,9 @@ class Game:
             self.sound_dict[sound] = pygame.mixer.Sound(path.join(self.sound_folder, self.sound_dict[sound]))
             self.sound_dict[sound].set_volume(self.sound_volume / 100)
 
+        """Main"""
+        self.main.load()
+
     def new(self):
         """Game"""
         self.all_sprites = pygame.sprite.LayeredUpdates()
@@ -108,6 +111,14 @@ class Game:
         self.debug_mode = False
         self.debug_check = False
         self.debug_color = CYAN
+
+        """Button"""
+        self.main_dict = self.main.main_dict = main_dict
+        self.buttons = self.main.buttons = Button(self, button_dict, "main")
+        self.interfaces = self.main.interfaces = Interface(self, interface_dict, "main")
+
+        """Main"""
+        self.main.new()
 
     # Game Loop ----------------------- #
     def run(self):
@@ -191,6 +202,8 @@ class Game:
     def update(self):
         self.main.update()
         self.all_sprites.update()
+        self.interfaces.update()
+        self.buttons.update()
 
         """Camera"""
         self.player_camera_1.update()
@@ -212,6 +225,12 @@ class Game:
 
         # Main ------------------------ #
         self.main.draw()
+        self.buttons.draw()
+        self.interfaces.draw()
+
+        """Camera"""
+        self.player_camera_1.draw()
+        self.player_camera_2.draw()
 
         # Sprite ---------------------- #
         for sprite in self.all_sprites:
@@ -223,10 +242,6 @@ class Game:
         if self.paused:
             self.gameDisplay.blit(self.dim_screen, (0, 0))
             self.gameDisplay.blit(self.pause_text_surface, self.pause_text_rect)
-
-        """Camera"""
-        self.player_camera_1.draw()
-        self.player_camera_2.draw()
 
         # Update ---------------------- #
         self.gameDisplay.update(self.event)
